@@ -58,24 +58,24 @@ RUN echo "Installing sccache..." \
     && chmod +x /usr/bin/sccache \
     && echo "Cleaning up..." \
     && rm -rf /tmp/sccache.tar.gz /tmp/sccache-v0.14.0-${SCCACHE_ARCH}-unknown-linux-musl \
-    && export ACTIONS_CACHE_URL=${ACTIONS_RESULTS_URL} \
+    && export ACTIONS_RESULTS_URL=${ACTIONS_RESULTS_URL} \
     && export ACTIONS_RUNTIME_TOKEN=${ACTIONS_RUNTIME_TOKEN} \
     && export SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
     && export SCCACHE_KEY_PREFIX=vllm-ascend_ \
     && export SCCACHE_LOG=debug \
     && echo "ACTIONS_RUNTIME_TOKEN=${ACTIONS_RUNTIME_TOKEN:0:20}..." \
     && echo "Validating GitHub Actions cache token permissions..." \
-    && if [ -z "$ACTIONS_CACHE_URL" ] || [ -z "$ACTIONS_RUNTIME_TOKEN" ]; then \
-         echo "ERROR: ACTIONS_CACHE_URL or ACTIONS_RUNTIME_TOKEN is empty"; \
+    && if [ -z "$ACTIONS_RESULTS_URL" ] || [ -z "$ACTIONS_RUNTIME_TOKEN" ]; then \
+         echo "ERROR: ACTIONS_RESULTS_URL or ACTIONS_RUNTIME_TOKEN is empty"; \
          exit 1; \
        fi \
     && echo "Testing cache API connectivity..." \
-    && echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL" \
+    && echo "ACTIONS_RESULTS_URL: $ACTIONS_RESULTS_URL" \
     && echo "Testing without redirect following..." \
     && HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
          -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
          -H "Accept: application/json;api-version=6.0-preview.1" \
-         "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+         "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
          2>/dev/null || echo "000") \
     && echo "Cache API HTTP status (no follow): $HTTP_STATUS" \
     && if [ "$HTTP_STATUS" = "307" ]; then \
@@ -83,13 +83,13 @@ RUN echo "Installing sccache..." \
          && REDIRECT_URL=$(curl -s -o /dev/null -w "%{redirect_url}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
               -H "Accept: application/json;api-version=6.0-preview.1" \
-              "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+              "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
               2>/dev/null || echo "") \
          && echo "Redirect URL: $REDIRECT_URL" \
          && HTTP_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
               -H "Accept: application/json;api-version=6.0-preview.1" \
-              "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+              "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
               2>/dev/null || echo "000") \
          && echo "Cache API HTTP status (after redirect): $HTTP_STATUS"; \
        fi \
@@ -102,7 +102,7 @@ RUN echo "Installing sccache..." \
          echo "Trying alternative API endpoint..." \
          && ALT_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
-              "$ACTIONS_CACHE_URL/caches" \
+              "$ACTIONS_RESULTS_URL/caches" \
               2>/dev/null || echo "000") \
          && echo "Alternative endpoint status: $ALT_STATUS"; \
        else \
@@ -134,23 +134,23 @@ RUN echo "[$(date '+%Y-%m-%d %H:%M:%S')] START: apt-get update" && \
     source /usr/local/Ascend/ascend-toolkit/set_env.sh && \
     export LD_LIBRARY_PATH=/usr/local/Ascend/ascend-toolkit/latest/${ARCH}-linux/devlib:/usr/local/Ascend/ascend-toolkit/latest/${ARCH}-linux/lib64:$LD_LIBRARY_PATH && \
     mkdir -p build && cd build \
-    && export ACTIONS_CACHE_URL=${ACTIONS_RESULTS_URL} \
+    && export ACTIONS_RESULTS_URL=${ACTIONS_RESULTS_URL} \
     && export ACTIONS_RUNTIME_TOKEN=${ACTIONS_RUNTIME_TOKEN} \
     && export SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
     && export SCCACHE_KEY_PREFIX=vllm-ascend_ \
     && export SCCACHE_LOG=debug \
     && echo "Validating GitHub Actions cache token permissions for Mooncake build..." \
-    && if [ -z "$ACTIONS_CACHE_URL" ] || [ -z "$ACTIONS_RUNTIME_TOKEN" ]; then \
-         echo "ERROR: ACTIONS_CACHE_URL or ACTIONS_RUNTIME_TOKEN is empty"; \
+    && if [ -z "$ACTIONS_RESULTS_URL" ] || [ -z "$ACTIONS_RUNTIME_TOKEN" ]; then \
+         echo "ERROR: ACTIONS_RESULTS_URL or ACTIONS_RUNTIME_TOKEN is empty"; \
          exit 1; \
        fi \
     && echo "Testing cache API connectivity..." \
-    && echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL" \
+    && echo "ACTIONS_RESULTS_URL: $ACTIONS_RESULTS_URL" \
     && echo "Testing without redirect following..." \
     && HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
          -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
          -H "Accept: application/json;api-version=6.0-preview.1" \
-         "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+         "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
          2>/dev/null || echo "000") \
     && echo "Cache API HTTP status (no follow): $HTTP_STATUS" \
     && if [ "$HTTP_STATUS" = "307" ]; then \
@@ -158,13 +158,13 @@ RUN echo "[$(date '+%Y-%m-%d %H:%M:%S')] START: apt-get update" && \
          && REDIRECT_URL=$(curl -s -o /dev/null -w "%{redirect_url}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
               -H "Accept: application/json;api-version=6.0-preview.1" \
-              "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+              "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
               2>/dev/null || echo "") \
          && echo "Redirect URL: $REDIRECT_URL" \
          && HTTP_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
               -H "Accept: application/json;api-version=6.0-preview.1" \
-              "$ACTIONS_CACHE_URL/_apis/artifactcache/caches" \
+              "$ACTIONS_RESULTS_URL/_apis/artifactcache/caches" \
               2>/dev/null || echo "000") \
          && echo "Cache API HTTP status (after redirect): $HTTP_STATUS"; \
        fi \
@@ -177,7 +177,7 @@ RUN echo "[$(date '+%Y-%m-%d %H:%M:%S')] START: apt-get update" && \
          echo "Trying alternative API endpoint..." \
          && ALT_STATUS=$(curl -L -s -o /dev/null -w "%{http_code}" \
               -H "Authorization: Bearer $ACTIONS_RUNTIME_TOKEN" \
-              "$ACTIONS_CACHE_URL/caches" \
+              "$ACTIONS_RESULTS_URL/caches" \
               2>/dev/null || echo "000") \
          && echo "Alternative endpoint status: $ALT_STATUS"; \
        else \
